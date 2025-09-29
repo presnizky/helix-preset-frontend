@@ -1,7 +1,7 @@
 import { AppBar, Box, Container, CssBaseline, Toolbar, Typography } from '@mui/material';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import React from 'react';
-import { Link, Route, BrowserRouter as Router, Routes } from 'react-router-dom';
+import { Link, Route, BrowserRouter as Router, Routes, Navigate } from 'react-router-dom';
 import './App.css';
 import Home from './pages/Home';
 import Search from './pages/Search';
@@ -117,7 +117,7 @@ function App() {
               </Typography>
               <Box sx={{ display: 'flex', gap: 3 }}>
                 <Link 
-                  to="/" 
+                  to="/home" 
                   style={{ 
                     color: 'white', 
                     textDecoration: 'none',
@@ -179,7 +179,8 @@ function App() {
           
           <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
             <Routes>
-              <Route path="/" element={<Home />} />
+              <Route path="/" element={<Navigate to="/search" replace />} />
+              <Route path="/home" element={<Home />} />
               <Route path="/search" element={<Search />} />
               <Route path="/upload" element={<Upload />} />
             </Routes>
