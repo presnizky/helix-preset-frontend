@@ -31,7 +31,7 @@ import {
 import React, { useEffect, useState } from 'react';
 import MultiSelectDropdown from '../components/MultiSelectDropdown';
 import { apiService } from '../services/api';
-import { clearModelsCache, getModelsByType, getModelTypeDisplayName } from '../services/modelsService';
+import { clearModelsCache, getModelsByType, getModelTypeDisplayName, getModelTypes, sortModelDetailsByType, sortModelDetailsBySignalChain } from '../services/modelsService';
 
 const Search = () => {
   const [searchParams, setSearchParams] = useState({
@@ -48,6 +48,7 @@ const Search = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [modelsByType, setModelsByType] = useState({});
+  const [orderedModelTypes, setOrderedModelTypes] = useState([]);
   const [selectedModels, setSelectedModels] = useState({});
   const [modelsLoading, setModelsLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
@@ -59,7 +60,9 @@ const Search = () => {
       try {
         setModelsLoading(true);
         const models = await getModelsByType();
+        const orderedTypes = await getModelTypes();
         setModelsByType(models);
+        setOrderedModelTypes(orderedTypes);
         
         // Initialize selected models for each type
         const initialSelected = {};
@@ -349,7 +352,7 @@ const Search = () => {
             </Box>
           ) : (
             <Grid container spacing={2}>
-              {Object.keys(modelsByType).map((type) => (
+              {orderedModelTypes.map((type) => (
                 <Grid item xs={12} sm={6} md={4} key={type}>
                   <Card variant="outlined" sx={{ height: '100%' }}>
                     <CardContent sx={{ p: 2 }}>
@@ -559,7 +562,8 @@ const Search = () => {
                     </TableCell>
                     <TableCell>
                       <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                        {preset.model_details && preset.model_details.map((modelDetail, index) => (
+                        {preset.model_details && sortModelDetailsByType([...preset.model_details])
+                          .map((modelDetail, index) => (
                           <Chip 
                             key={index}
                             label={`${modelDetail.model_type}: ${modelDetail.model_name}`}
@@ -707,17 +711,32 @@ const Search = () => {
                 </Typography>
                 {selectedPreset.model_details && selectedPreset.model_details.length > 0 ? (
                   <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                    {selectedPreset.model_details.map((modelDetail, index) => (
+                    {sortModelDetailsBySignalChain([...selectedPreset.model_details])
+                      .map((modelDetail, index) => (
                       <Card key={index} variant="outlined" sx={{ p: 2 }}>
                         <Box sx={{ mb: 2 }}>
-                          <Typography variant="subtitle1" sx={{ fontWeight: 600, color: '#2c3e50' }}>
+                          <Typography variant="subtitle1" sx={{ fontWeight: 600, color: '#2c3e50', mb: 1 }}>
                             {modelDetail.model_type?.toUpperCase()}: {modelDetail.model_name}
                           </Typography>
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                            <Typography variant="caption" sx={{ color: '#7f8c8d' }}>
+                              Signal Chain Position:
+                            </Typography>
+                            <Chip 
+                              label={`DSP${modelDetail.dsp_number} → Pos${modelDetail.position} → Path${modelDetail.path_number}`}
+                              size="small"
+                              sx={{ 
+                                backgroundColor: '#3498db',
+                                color: 'white',
+                                fontSize: '0.7rem',
+                                fontWeight: 600
+                              }}
+                            />
+                          </Box>
                           <Typography variant="caption" sx={{ color: '#7f8c8d' }}>
-                            DSP: {modelDetail.dsp_number} | Position: {modelDetail.position} | Path: {modelDetail.path_number}
-                            {modelDetail.is_stereo && ' | Stereo'}
-                            {modelDetail.has_trails && ' | Trails'}
-                            {!modelDetail.is_enabled && ' | DISABLED'}
+                            {modelDetail.is_stereo && 'Stereo | '}
+                            {modelDetail.has_trails && 'Trails | '}
+                            {!modelDetail.is_enabled && 'DISABLED'}
                           </Typography>
                         </Box>
                         
@@ -747,7 +766,7 @@ const Search = () => {
                                       width: '50%'
                                     }}>
                                       <Typography variant="body2" sx={{ fontWeight: 500, color: '#2c3e50' }}>
-                                        {value}
+                                        {typeof value === 'number' ? value.toFixed(2) : value}
                                       </Typography>
                                     </TableCell>
                                   </TableRow>

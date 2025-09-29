@@ -71,12 +71,45 @@ export const getModelsByType = async () => {
 };
 
 /**
- * Get available model types
+ * Get available model types in the specified order
  */
 export const getModelTypes = async () => {
   try {
     const modelsByType = await getModelsByType();
-    return Object.keys(modelsByType).sort();
+    const availableTypes = Object.keys(modelsByType);
+    
+    // Define the preferred order
+    const preferredOrder = [
+      'amp',
+      'preamp', 
+      'cab',
+      'dynamics',
+      'distortion',
+      'modulation',
+      'pitch',
+      'synth',
+      'delay',
+      'reverb',
+      'filter',
+      'wah'
+    ];
+    
+    // Sort types according to preferred order, then alphabetically for any remaining types
+    const orderedTypes = [];
+    
+    // Add types in preferred order if they exist
+    preferredOrder.forEach(type => {
+      if (availableTypes.includes(type)) {
+        orderedTypes.push(type);
+      }
+    });
+    
+    // Add remaining types alphabetically
+    const remainingTypes = availableTypes
+      .filter(type => !preferredOrder.includes(type))
+      .sort();
+    
+    return [...orderedTypes, ...remainingTypes];
   } catch (error) {
     console.error("Error getting model types:", error);
     throw error;
@@ -102,6 +135,48 @@ export const getModelsForType = async (type) => {
 export const clearModelsCache = () => {
   modelsCache = null;
   modelsByTypeCache = null;
+};
+
+/**
+ * Sort model details by preferred type order
+ */
+export const sortModelDetailsByType = (modelDetails) => {
+  const typeOrder = ['amp', 'preamp', 'cab', 'dynamics', 'distortion', 'modulation', 'pitch', 'synth', 'delay', 'reverb', 'filter', 'wah'];
+  
+  return modelDetails.sort((a, b) => {
+    const aIndex = typeOrder.indexOf(a.model_type);
+    const bIndex = typeOrder.indexOf(b.model_type);
+    
+    // If both types are in the preferred order, sort by their position
+    if (aIndex !== -1 && bIndex !== -1) {
+      return aIndex - bIndex;
+    }
+    // If only one is in the preferred order, prioritize it
+    if (aIndex !== -1) return -1;
+    if (bIndex !== -1) return 1;
+    // If neither is in the preferred order, sort alphabetically
+    return a.model_type.localeCompare(b.model_type);
+  });
+};
+
+/**
+ * Sort model details by signal chain order (DSP, then Position, then Path)
+ */
+export const sortModelDetailsBySignalChain = (modelDetails) => {
+  return modelDetails.sort((a, b) => {
+    // First sort by DSP number
+    if (a.dsp_number !== b.dsp_number) {
+      return a.dsp_number - b.dsp_number;
+    }
+    
+    // Then sort by Position
+    if (a.position !== b.position) {
+      return a.position - b.position;
+    }
+    
+    // Finally sort by Path number
+    return a.path_number - b.path_number;
+  });
 };
 
 /**
