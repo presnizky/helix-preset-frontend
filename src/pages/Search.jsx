@@ -31,7 +31,7 @@ import {
 import React, { useEffect, useState } from 'react';
 import MultiSelectDropdown from '../components/MultiSelectDropdown';
 import { apiService } from '../services/api';
-import { clearModelsCache, getModelsByType, getModelTypeDisplayName, getModelTypes, sortModelDetailsByType, sortModelDetailsBySignalChain } from '../services/modelsService';
+import { getModelsByType, getModelTypeDisplayName, getModelTypes, sortModelDetailsByType, sortModelDetailsBySignalChain } from '../services/modelsService';
 
 const Search = () => {
   const [searchParams, setSearchParams] = useState({
@@ -268,6 +268,11 @@ const Search = () => {
                 label="Search Query"
                 value={searchParams.query}
                 onChange={(e) => setSearchParams(prev => ({ ...prev, query: e.target.value }))}
+                onKeyPress={(e) => {
+                  if (e.key === 'Enter') {
+                    handleSearch();
+                  }
+                }}
                 placeholder="Search by name, description, or author"
               />
             </Grid>
@@ -278,6 +283,11 @@ const Search = () => {
                 label="Author"
                 value={searchParams.author}
                 onChange={(e) => setSearchParams(prev => ({ ...prev, author: e.target.value }))}
+                onKeyPress={(e) => {
+                  if (e.key === 'Enter') {
+                    handleSearch();
+                  }
+                }}
                 placeholder="Filter by author"
               />
             </Grid>
@@ -288,6 +298,11 @@ const Search = () => {
                 label="Tags"
                 value={searchParams.tags}
                 onChange={(e) => setSearchParams(prev => ({ ...prev, tags: e.target.value }))}
+                onKeyPress={(e) => {
+                  if (e.key === 'Enter') {
+                    handleSearch();
+                  }
+                }}
                 placeholder="Comma-separated tags"
               />
             </Grid>
@@ -302,29 +317,6 @@ const Search = () => {
             <Typography variant="h5" sx={{ fontWeight: 600, color: '#2c3e50' }}>
               Select Models
             </Typography>
-            <Button
-              onClick={() => {
-                clearModelsCache();
-                window.location.reload();
-              }}
-              size="small"
-              variant="outlined"
-              sx={{
-                borderColor: '#3498db',
-                color: '#3498db',
-                fontSize: '0.875rem',
-                minWidth: 'auto',
-                px: 2,
-                mr: 1,
-                '&:hover': {
-                  borderColor: '#2980b9',
-                  backgroundColor: '#3498db',
-                  color: 'white',
-                }
-              }}
-            >
-              Refresh Models
-            </Button>
             <Button
               onClick={clearAllSelections}
               size="small"
