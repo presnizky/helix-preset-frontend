@@ -12,14 +12,27 @@ import {
     ListItemText,
     Typography
 } from '@mui/material';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { apiService } from '../services/api';
+import { useAuth } from '../contexts/AuthContext';
+import AuthModal from '../components/AuthModal';
 
 const Upload = () => {
+  const { isAuthenticated } = useAuth();
+  const navigate = useNavigate();
   const [files, setFiles] = useState([]);
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [results, setResults] = useState([]);
+  const [authModalOpen, setAuthModalOpen] = useState(false);
+
+  // Check authentication on component mount
+  useEffect(() => {
+    if (!isAuthenticated) {
+      setAuthModalOpen(true);
+    }
+  }, [isAuthenticated]);
 
   const handleFileSelect = (event) => {
     const selectedFiles = Array.from(event.target.files);
@@ -50,6 +63,11 @@ const Upload = () => {
 
   const uploadFiles = async () => {
     if (files.length === 0) return;
+
+    if (!isAuthenticated) {
+      setAuthModalOpen(true);
+      return;
+    }
 
     setUploading(true);
     setUploadProgress(0);
@@ -230,6 +248,18 @@ const Upload = () => {
           </CardContent>
         </Card>
       )}
+
+      {/* Authentication Modal */}
+      <AuthModal 
+        open={authModalOpen} 
+        onClose={() => {
+          setAuthModalOpen(false);
+          if (!isAuthenticated) {
+            navigate('/search');
+          }
+        }}
+        title="Authentication Required for Upload"
+      />
     </Box>
   );
 };

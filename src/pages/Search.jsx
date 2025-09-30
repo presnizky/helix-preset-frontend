@@ -30,10 +30,13 @@ import {
 } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import MultiSelectDropdown from '../components/MultiSelectDropdown';
+import AuthModal from '../components/AuthModal';
 import { apiService } from '../services/api';
 import { getModelsByType, getModelTypeDisplayName, getModelTypes, sortModelDetailsByType, sortModelDetailsBySignalChain } from '../services/modelsService';
+import { useAuth } from '../contexts/AuthContext';
 
 const Search = () => {
+  const { isAuthenticated } = useAuth();
   const [searchParams, setSearchParams] = useState({
     query: '',
     author: '',
@@ -54,6 +57,7 @@ const Search = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedPreset, setSelectedPreset] = useState(null);
   const [selectedPresets, setSelectedPresets] = useState([]);
+  const [authModalOpen, setAuthModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchModels = async () => {
@@ -177,6 +181,11 @@ const Search = () => {
   };
 
   const handleDownload = async (preset) => {
+    if (!isAuthenticated) {
+      setAuthModalOpen(true);
+      return;
+    }
+
     try {
       const response = await apiService.downloadPreset(preset.id);
       const blob = new Blob([response.data]);
@@ -192,6 +201,9 @@ const Search = () => {
       document.body.removeChild(a);
     } catch (err) {
       console.error('Download error:', err);
+      if (err.response?.status === 401) {
+        setAuthModalOpen(true);
+      }
     }
   };
 
@@ -224,6 +236,11 @@ const Search = () => {
   const handleBulkDownload = async () => {
     if (selectedPresets.length === 0) return;
     
+    if (!isAuthenticated) {
+      setAuthModalOpen(true);
+      return;
+    }
+    
     try {
       const response = await apiService.downloadPresetsBulk(selectedPresets);
       const blob = new Blob([response.data]);
@@ -237,7 +254,11 @@ const Search = () => {
       document.body.removeChild(a);
     } catch (err) {
       console.error('Bulk download error:', err);
-      setError('Bulk download failed. Please try again.');
+      if (err.response?.status === 401) {
+        setAuthModalOpen(true);
+      } else {
+        setError('Bulk download failed. Please try again.');
+      }
     }
   };
 
@@ -807,6 +828,13 @@ const Search = () => {
           </Button>
         </DialogActions>
       </Dialog>
+
+      {/* Authentication Modal */}
+      <AuthModal 
+        open={authModalOpen} 
+        onClose={() => setAuthModalOpen(false)}
+        title="Authentication Required for Download"
+      />
     </Box>
   );
 };
