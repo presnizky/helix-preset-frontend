@@ -6,6 +6,8 @@ import './App.css';
 import Home from './pages/Home';
 import Search from './pages/Search';
 import Upload from './pages/Upload';
+import { AuthProvider } from './contexts/AuthContext';
+import UserProfile from './components/UserProfile';
 
 const theme = createTheme({
   palette: {
@@ -90,92 +92,94 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Router>
-        <Box sx={{ flexGrow: 1 }}>
-          <AppBar 
-            position="static" 
-            elevation={0}
-            sx={{ 
-              background: 'linear-gradient(135deg, #2c3e50 0%, #34495e 100%)',
-              borderBottom: '1px solid rgba(255,255,255,0.1)'
-            }}
-          >
-            <Toolbar sx={{ py: 1 }}>
-              <Typography 
-                variant="h5" 
-                component="div" 
-                sx={{ 
-                  flexGrow: 1, 
-                  fontWeight: 700,
-                  background: 'linear-gradient(45deg, #ffffff 30%, #ecf0f1 90%)',
-                  backgroundClip: 'text',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
-                }}
-              >
-                Helix Preset Search
-              </Typography>
-              <Box sx={{ display: 'flex', gap: 3 }}>
-                <Link 
-                  to="/home" 
-                  style={{ 
-                    color: 'white', 
-                    textDecoration: 'none',
-                    fontWeight: 500,
-                    padding: '8px 16px',
-                    borderRadius: '6px',
-                    transition: 'all 0.2s ease',
-                  }}
-                  onMouseEnter={(e) => {
-                    e.target.style.background = 'rgba(255,255,255,0.1)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.target.style.background = 'transparent';
+      <AuthProvider>
+        <Router>
+          <Box sx={{ flexGrow: 1 }}>
+            <AppBar 
+              position="static" 
+              elevation={0}
+              sx={{ 
+                background: 'linear-gradient(135deg, #2c3e50 0%, #34495e 100%)',
+                borderBottom: '1px solid rgba(255,255,255,0.1)'
+              }}
+            >
+              <Toolbar sx={{ py: 1 }}>
+                <Typography 
+                  variant="h5" 
+                  component="div" 
+                  sx={{ 
+                    flexGrow: 1, 
+                    fontWeight: 700,
+                    background: 'linear-gradient(45deg, #ffffff 30%, #ecf0f1 90%)',
+                    backgroundClip: 'text',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
                   }}
                 >
-                  Home
-                </Link>
-                <Link 
-                  to="/search" 
-                  style={{ 
-                    color: 'white', 
-                    textDecoration: 'none',
-                    fontWeight: 500,
-                    padding: '8px 16px',
-                    borderRadius: '6px',
-                    transition: 'all 0.2s ease',
-                  }}
-                  onMouseEnter={(e) => {
-                    e.target.style.background = 'rgba(255,255,255,0.1)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.target.style.background = 'transparent';
-                  }}
-                >
-                  Search
-                </Link>
-                <Link 
-                  to="/upload" 
-                  style={{ 
-                    color: 'white', 
-                    textDecoration: 'none',
-                    fontWeight: 500,
-                    padding: '8px 16px',
-                    borderRadius: '6px',
-                    transition: 'all 0.2s ease',
-                  }}
-                  onMouseEnter={(e) => {
-                    e.target.style.background = 'rgba(255,255,255,0.1)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.target.style.background = 'transparent';
-                  }}
-                >
-                  Upload
-                </Link>
-              </Box>
-            </Toolbar>
-          </AppBar>
+                  Helix Preset Search
+                </Typography>
+                <Box sx={{ display: 'flex', gap: 3, alignItems: 'center' }}>
+                  <Link 
+                    to="/home" 
+                    style={{ 
+                      color: 'white', 
+                      textDecoration: 'none',
+                      fontWeight: 500,
+                      padding: '8px 16px',
+                      borderRadius: '6px',
+                      transition: 'all 0.2s ease',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.target.style.background = 'rgba(255,255,255,0.1)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.target.style.background = 'transparent';
+                    }}
+                  >
+                    Home
+                  </Link>
+                  <Link 
+                    to="/search" 
+                    style={{ 
+                      color: 'white', 
+                      textDecoration: 'none',
+                      fontWeight: 500,
+                      padding: '8px 16px',
+                      borderRadius: '6px',
+                      transition: 'all 0.2s ease',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.target.style.background = 'rgba(255,255,255,0.1)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.target.style.background = 'transparent';
+                    }}
+                  >
+                    Search
+                  </Link>
+                  <Link 
+                    to="/upload" 
+                    style={{ 
+                      color: 'white', 
+                      textDecoration: 'none',
+                      fontWeight: 500,
+                      padding: '8px 16px',
+                      borderRadius: '6px',
+                      transition: 'all 0.2s ease',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.target.style.background = 'rgba(255,255,255,0.1)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.target.style.background = 'transparent';
+                    }}
+                  >
+                    Upload
+                  </Link>
+                  <UserProfile />
+                </Box>
+              </Toolbar>
+            </AppBar>
           
           <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
             <Routes>
@@ -187,6 +191,7 @@ function App() {
           </Container>
         </Box>
       </Router>
+      </AuthProvider>
     </ThemeProvider>
   );
 }
